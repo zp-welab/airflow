@@ -209,6 +209,8 @@ else
     NON_CI="true"
 fi
 
+AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD="${CI}"
+
 # Extras used to to build slim airflow image
 AIRFLOW_SLIM_EXTRAS=${AIRFLOW_SLIM_EXTRAS:="all"}
 
