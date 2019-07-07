@@ -134,14 +134,14 @@ export DOCKERHUB_REPO=${DOCKERHUB_REPO:="airflow"}
 # This default Python version is later overridden in case IMAGE_NAME is passed
 export PYTHON_VERSION=\
 ${PYTHON_VERSION:=$(python -c 'import sys;print("%s.%s" % (sys.version_info.major, sys.version_info.minor))')}
-export IMAGE_NAME=${IMAGE_NAME:=${DOCKERHUB_USER}/${DOCKERHUB_REPO}:master-python${PYTHON_VERSION}}
+export BASE_IMAGE_NAME=${BASE_IMAGE_NAME:=${DOCKERHUB_USER}/${DOCKERHUB_REPO}:master-python${PYTHON_VERSION}}
 
 echo
-echo "IMAGE_NAME=${IMAGE_NAME:=}"
+echo "BASE_IMAGE_NAME=${BASE_IMAGE_NAME:=} (final image will have -ci, -ci-slim suffixes)"
 echo
 
 # Remove index.docker.io/ prefix as it is added by default by DockerHub
-export LOCAL_IMAGE=${IMAGE_NAME#index.docker.io/}
+export LOCAL_IMAGE=${BASE_IMAGE_NAME#index.docker.io/}
 echo
 echo "LOCAL_IMAGE=${LOCAL_IMAGE}"
 echo
