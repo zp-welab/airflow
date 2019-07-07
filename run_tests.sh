@@ -26,9 +26,6 @@ CMDNAME="$(basename -- "$0")"
 AIRFLOW_ROOT="$(cd "${MY_DIR}" && pwd)"
 export AIRFLOW__CORE__DAGS_FOLDER="S{AIRFLOW_ROOT}/tests/dags"
 
-# add test/contrib to PYTHONPATH
-export PYTHONPATH=${PYTHONPATH:-${AIRFLOW_ROOT}/tests/test_utils}
-
 # environment
 export AIRFLOW_HOME=${AIRFLOW_HOME:=${HOME}}
 
@@ -37,7 +34,7 @@ echo "Airflow home: ${AIRFLOW_HOME}"
 export AIRFLOW__CORE__UNIT_TEST_MODE=True
 
 # add test/test_utils to PYTHONPATH TODO: Do we need that ??? Looks fishy.
-export PYTHONPATH=${PYTHONPATH}:${MY_DIR}/tests/test_utils
+export PYTHONPATH=${PYTHONPATH}:${AIRFLOW_ROOT}/tests/test_utils
 
 usage() {
       echo """
