@@ -21,8 +21,8 @@ language: python
 env:
   global:
     - BUILD_ID=${TRAVIS_BUILD_ID}
-    - BRANCH_NAME=${TRAVIS_BRANCH}
-    - SOURCE_BRANCH=${SOURCE_BRANCH}  # Can override TRAVIS_BRANCH if specified
+    - AIRFLOW_CONTAINER_BRANCH_NAME=${TRAVIS_BRANCH}
+    - AIRFLOW_CONTAINER_SOURCE_BRANCH_OVERRIDE=${SOURCE_BRANCH}  # Can override TRAVIS_BRANCH if specified
   matrix:
     - BACKEND=mysql ENV=docker
     - BACKEND=postgres ENV=docker

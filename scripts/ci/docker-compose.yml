@@ -59,7 +59,7 @@ services:
     domainname: example.com
 
   airflow-testing:
-    image: ${DOCKER_IMAGE}
+    image: ${AIRFLOW_CONTAINER_DOCKER_IMAGE}
     init: true
     entrypoint: [ "/bin/bash", "-c" ]
     environment:

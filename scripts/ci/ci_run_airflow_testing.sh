@@ -46,13 +46,21 @@ fi
 # Branch name to download image from
 # Can be overridden by SOURCE_BRANCH
 # Define an empty BRANCH_NAME_FIRST
-export BRANCH_NAME=${BRANCH_NAME:=""}
+export AIRFLOW_CONTAINER_BRANCH_NAME=${AIRFLOW_CONTAINER_BRANCH_NAME:=""}
 # in case SOURCE_BRANCH is defined it can override the BRANCH_NAME
-export BRANCH_NAME=${SOURCE_BRANCH:=${BRANCH_NAME}}
+# TODO: Remove me - it's only needed before we merge to master
+export AIRFLOW_CONTAINER_BRANCH_NAME=\
+${AIRFLOW_CONTAINER_SOURCE_BRANCH_OVERRIDE:=${AIRFLOW_CONTAINER_BRANCH_NAME}}
 # Default branch name for triggered builds is master
-export BRANCH_NAME=${BRANCH_NAME:="master"}
+export AIRFLOW_CONTAINER_BRANCH_NAME=${AIRFLOW_CONTAINER_BRANCH_NAME:="master"}
 
-export DOCKER_IMAGE=${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${BRANCH_NAME}-python${PYTHON_VERSION}-ci
+export AIRFLOW_CONTAINER_DOCKER_IMAGE=\
+${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${AIRFLOW_CONTAINER_BRANCH_NAME}-python${PYTHON_VERSION}-ci
+
+
+echo
+echo "Using docker image: ${AIRFLOW_CONTAINER_DOCKER_IMAGE} for docker compose runs"
+echo
 
 set +u
 if [[ "${ENV}" == "docker" ]]; then
