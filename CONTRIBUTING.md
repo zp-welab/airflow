@@ -163,18 +163,18 @@ development.
 ### Running tests
 
 To run tests locally, once you activate virtualenv you should be able to simply run
-``run-tests`` at will. Note that if you want to pass extra parameters to nose
+``./run-tests`` at will. Note that if you want to pass extra parameters to nose
 you should do it after '--'
 
 For example, in order to just execute the "core" unit tests, run the following:
 
 ```bash
-./run-tests.sh tests.core:CoreTest -- -s --logging-level=DEBUG
+./run-tests tests.core:CoreTest -- -s --logging-level=DEBUG
 ```
 or a single test method:
 
 ```bash
-./run-tests.sh tests.core:CoreTest.test_check_operators -- -s --logging-level=DEBUG
+./run-tests tests.core:CoreTest.test_check_operators -- -s --logging-level=DEBUG
 ```
 
 ### Running tests directly from the IDE
@@ -273,23 +273,23 @@ docker run -t -i -v $(pwd):/airflow/ -w /airflow/ "local-airflow:3.6" bash
 
 ### Running tests
 Once you enter docker container you should be able to simply run
-`run-tests.sh` at will. Note that if you want to pass extra parameters to nose
+`./run-tests` at will. Note that if you want to pass extra parameters to nose
 you should do it after '--'
 
 For example, in order to just execute the "core" unit tests, run the following:
 ```bash
-./run-tests.sh tests.core:CoreTest -- -s --logging-level=DEBUG
+./run-tests tests.core:CoreTest -- -s --logging-level=DEBUG
 ```
 or a single test method:
 ```bash
-./run-tests.sh tests.core:CoreTest.test_check_operators -- -s --logging-level=DEBUG
+./run-tests tests.core:CoreTest.test_check_operators -- -s --logging-level=DEBUG
 ```
 or another example:
 ```
-./run_tests.sh tests.contrib.operators.test_dataproc_operator:DataprocClusterCreateOperatorTest.test_create_cluster_deletes_error_cluster  -s --logging-level=DEBUG
+./run-tests tests.contrib.operators.test_dataproc_operator:DataprocClusterCreateOperatorTest.test_create_cluster_deletes_error_cluster  -s --logging-level=DEBUG
 ```
 
-Note that run_tests.sh script runs tests but performs database initialisation first.
+Note that `./run_tests` script runs tests but performs database initialisation first.
 You can skip the database initialisation part with --skip-db-init (-s) flag.
 
 

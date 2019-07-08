@@ -35,8 +35,7 @@ services:
       - ../../.flake8:/opt/airflow/.flake8
       - ../../pylintrc:/opt/airflow/pylintrc
       - ../../.rat-excludes:/opt/airflow/.rat-excludes
-      - ../../run-tests:/root/run-tests
-      - ../../run-tests-complete:/root/run-tests-complete
+      - ../../run-tests:/opt/airflow/run-tests
       - ../../logs:/root/airflow/logs
     ports:
       - "${WEBSERVER_HOST_PORT}:8080"
