@@ -32,4 +32,4 @@ echo "Running in $(pwd)"
 echo
 
 sudo rm -rf "$(pwd)/docs/_build/*"
-"$(pwd)/docs/build.sh"
+sudo "$(pwd)/docs/build.sh"
