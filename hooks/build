@@ -134,23 +134,27 @@ export DOCKERHUB_REPO=${DOCKERHUB_REPO:="airflow"}
 # This default Python version is later overridden in case IMAGE_NAME is passed
 export PYTHON_VERSION=\
 ${PYTHON_VERSION:=$(python -c 'import sys;print("%s.%s" % (sys.version_info.major, sys.version_info.minor))')}
-export BASE_IMAGE_NAME=${BASE_IMAGE_NAME:=${DOCKERHUB_USER}/${DOCKERHUB_REPO}:master-python${PYTHON_VERSION}}
+
+# IMAGE_NAME might come from DockerHub and we decide which PYTHON_VERSION to use based on it (see below)
+# In case IMAGE_NAME is not set we determine PYTHON_VERSION based on the default python on the path
+# So in virtualenvs it will use the virtualenv's PYTHON_VERSION.
+export BASE_IMAGE_NAME=${IMAGE_NAME:=${DOCKERHUB_USER}/${DOCKERHUB_REPO}:master-python${PYTHON_VERSION}}
 
 echo
 echo "BASE_IMAGE_NAME=${BASE_IMAGE_NAME:=} (final image will have -ci, -ci-slim suffixes)"
 echo
 
 # Remove index.docker.io/ prefix as it is added by default by DockerHub
-export LOCAL_IMAGE=${BASE_IMAGE_NAME#index.docker.io/}
+export LOCAL_BASE_IMAGE_NAME=${BASE_IMAGE_NAME#index.docker.io/}
 echo
-echo "LOCAL_IMAGE=${LOCAL_IMAGE}"
+echo "LOCAL_BASE_IMAGE_NAME=${LOCAL_BASE_IMAGE_NAME}"
 echo
 
 # Extract python version from image name we want to build in case it was passed
 # Via IMAGE_NAME
 # This nice bash construct below extracts last field after '-python' delimiter
 # So for example 'airflow:master-python3.6' will produce LONG_PYTHON_VERSION=python3.6
-LONG_PYTHON_VERSION="${LOCAL_IMAGE##*-}"
+LONG_PYTHON_VERSION="${LOCAL_BASE_IMAGE_NAME##*-}"
 export LONG_PYTHON_VERSION
 
 echo
@@ -172,10 +176,17 @@ echo "PYTHON_VERSION=${PYTHON_VERSION}"
 echo
 
 
-# This nice bash construct below extracts one but last field before '-' delimiter
-# but after the image name (separated with :)
-# So for example 'airflow:master-python3.6' will produce IMAGE_PREFIX=master
-IMAGE_PREFIX=$(echo "${LOCAL_IMAGE}" | rev | cut -d '-' -f2 | cut -d ':' -f1 | rev )
+# Extract IMAGE_TAG from LOCAL_BASE_IMAGE_NAME (apache/airflow:master-python3.6 -> master-python3.6)
+IMAGE_TAG=${LOCAL_BASE_IMAGE_NAME##${DOCKERHUB_USER}/${DOCKERHUB_REPO}:}
+echo
+echo "Image tag: ${IMAGE_TAG}"
+echo
+
+# Extract TAG_PREFIX from IMAGE_TAG (master-python3.6 -> master)
+TAG_PREFIX=${IMAGE_TAG%-*}
+echo
+echo "Image tag prefix: ${TAG_PREFIX}"
+echo
 
 # In case of CRON jobs on Travis we run builds without cache
 if [[ "${TRAVIS_EVENT_TYPE:=}" == "cron" ]]; then
@@ -255,30 +266,25 @@ echo "Building NPM? : ${AIRFLOW_CONTAINER_BUILD_NPM}"
 export AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD=${AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD:="true"}
 echo "The build optimised for CI? : ${AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD}"
 
-
-export AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD="${AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD:=$CI}"
-echo "The build is optimised for CI case"
-
-
 # Base python image for the build
 export PYTHON_BASE_IMAGE=python:${PYTHON_VERSION}-slim
 
 if [[ "${AIRFLOW_RELEASE_BUILD}" == "true" ]]; then
     export AIRFLOW_SLIM_CI_IMAGE="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${AIRFLOW_VERSION}-python${PYTHON_VERSION}-ci-slim"
     export AIRFLOW_SLIM_CI_IMAGE_DEFAULT="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${AIRFLOW_VERSION}-ci-slim"
-    export AIRFLOW_SLIM_CI_IMAGE_LATEST="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:latest-python${PYTHON_VERSION}-${IMAGE_PREFIX}-ci-slim"
-    export AIRFLOW_SLIM_CI_IMAGE_LATEST_DEFAULT="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:latest-${IMAGE_PREFIX}-ci-slim"
+    export AIRFLOW_SLIM_CI_IMAGE_LATEST="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:latest-python${PYTHON_VERSION}-${TAG_PREFIX}-ci-slim"
+    export AIRFLOW_SLIM_CI_IMAGE_LATEST_DEFAULT="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:latest-${TAG_PREFIX}-ci-slim"
 
     export AIRFLOW_CI_IMAGE="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${AIRFLOW_VERSION}-python${PYTHON_VERSION}-ci"
     export AIRFLOW_CI_IMAGE_DEFAULT="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${AIRFLOW_VERSION}-ci"
-    export AIRFLOW_CI_IMAGE_LATEST="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:latest-python${PYTHON_VERSION}-${IMAGE_PREFIX}-ci"
-    export AIRFLOW_CI_IMAGE_LATEST_DEFAULT="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:latest-${IMAGE_PREFIX}-ci"
+    export AIRFLOW_CI_IMAGE_LATEST="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:latest-python${PYTHON_VERSION}-${TAG_PREFIX}-ci"
+    export AIRFLOW_CI_IMAGE_LATEST_DEFAULT="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:latest-${TAG_PREFIX}-ci"
 else
-    export AIRFLOW_SLIM_CI_IMAGE="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${IMAGE_PREFIX}-python${PYTHON_VERSION}-ci-slim"
-    export AIRFLOW_SLIM_CI_IMAGE_DEFAULT="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${IMAGE_PREFIX}-ci-slim"
+    export AIRFLOW_SLIM_CI_IMAGE="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${TAG_PREFIX}-python${PYTHON_VERSION}-ci-slim"
+    export AIRFLOW_SLIM_CI_IMAGE_DEFAULT="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${TAG_PREFIX}-ci-slim"
 
-    export AIRFLOW_CI_IMAGE="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${IMAGE_PREFIX}-python${PYTHON_VERSION}-ci"
-    export AIRFLOW_CI_IMAGE_DEFAULT="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${IMAGE_PREFIX}-ci"
+    export AIRFLOW_CI_IMAGE="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${TAG_PREFIX}-python${PYTHON_VERSION}-ci"
+    export AIRFLOW_CI_IMAGE_DEFAULT="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${TAG_PREFIX}-ci"
 fi
 # In the future we can enable buildkit.
 # It's experimental now and cache does not work out of the box with buildkit in Docker 18.09.2, buildkit 0.3.3
