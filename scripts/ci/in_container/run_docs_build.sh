@@ -16,26 +16,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-set -euo pipefail
 
-MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Script to run Pylint on all code. Can be started from any working directory
+# ./scripts/ci/run_pylint.sh
 
-pushd "${MY_DIR}/../../" || exit 1
+set -uo pipefail
 
-export AIRFLOW_CONTAINER_SKIP_SLIM_CI_IMAGE="false"
-export AIRFLOW_CONTAINER_SKIP_CI_IMAGE="true"
-export AIRFLOW_CONTAINER_PUSH_IMAGES="false"
-export AIRFLOW_CONTAINER_BUILD_NPM="false"
-export AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD="true"
+# Uncomment to see the commands executed
+# set -x
 
-# shellcheck source=../../hooks/build
-. ./hooks/build
+pushd "${AIRFLOW_SOURCES}" || exit 1
 
-set -x
-rm -rf "$(pwd)/docs/_build/*"
-docker run -v "$(pwd)/docs/_build":/opt/airflow/docs/_build -t \
-       --entrypoint /opt/airflow/scripts/ci/in_container/run_docs_build.sh \
-       --env HOST_USER_ID="$(id -ur)" --env HOST_GROUP_ID="$(id -gr)" "${AIRFLOW_SLIM_CI_IMAGE}"
-set +x
+echo
+echo "Running in $(pwd)"
+echo
 
-popd || exit 1
+sudo rm -rf "$(pwd)/docs/_build/*"
+"$(pwd)/docs/build.sh"
