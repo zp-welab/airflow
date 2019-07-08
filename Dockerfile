@@ -28,9 +28,7 @@ FROM ${PYTHON_BASE_IMAGE} as airflow-apt-deps-ci-slim
 
 SHELL ["/bin/bash", "-o", "pipefail", "-e", "-u", "-x", "-c"]
 
-# Need to repeat the empty argument here otherwise it will not be set for this stage
-# But the default value carries from the one set before FROM
-ARG PYTHON_BASE_IMAGE
+ARG PYTHON_BASE_IMAGE="python:3.6-slim"
 ENV PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE}
 
 ARG AIRFLOW_VERSION="2.0.0.dev0"
@@ -127,7 +125,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-e", "-u", "-x", "-c"]
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
 
-ARG APT_DEPS_IMAGE
+ARG APT_DEPS_IMAGE="airflow-apt-deps-ci-slim"
 ENV APT_DEPS_IMAGE=${APT_DEPS_IMAGE}
 
 RUN echo "${APT_DEPS_IMAGE}"
@@ -232,9 +230,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-e", "-u", "-x", "-c"]
 WORKDIR /opt/airflow
 
 RUN echo "Airflow version: ${AIRFLOW_VERSION}"
-
-ARG APT_DEPS_IMAGE
-ENV APT_DEPS_IMAGE=${APT_DEPS_IMAGE}
 
 ARG AIRFLOW_USER=airflow
 ENV AIRFLOW_USER=${AIRFLOW_USER}
