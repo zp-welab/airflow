@@ -30,16 +30,11 @@ services:
       - ../../LICENSE:/opt/airflow/LICENSE
       - ../../MANIFEST.in:/opt/airflow/MANIFEST.in
       - ../../NOTICE:/opt/airflow/NOTICE
+      - ../../CHANGELOG.txt:/opt/airflow/CHANGELOG
+      - ../../.github:/opt/airflow/.github
       - ../../.flake8:/opt/airflow/.flake8
       - ../../pylintrc:/opt/airflow/pylintrc
       - ../../.rat-excludes:/opt/airflow/.rat-excludes
-      - ../../LICENSE:/opt/airflow/LICENSE
-      - ../../MANIFEST.in:/opt/airflow/MANIFEST
-      - ../../NOTICE:/opt/airflow/NOTICE
-      - ../../CHANGELOG.txt:/opt/airflow/CHANGELOG
-      - ../../.github:/opt/airflow/.github
-      - ../../setup.cfg:/opt/airflow/setup.cfg
-      - ../../setup.py:/opt/airflow/setup.py
       - ../../run-tests:/root/run-tests
       - ../../run-tests-complete:/root/run-tests-complete
       - ../../logs:/root/airflow/logs
