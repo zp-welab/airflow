@@ -26,8 +26,6 @@ little bit helps, and credit will always be given.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Contributing](#contributing)
-- [Table of Contents](#table-of-contents)
 - [Types of Contributions](#types-of-contributions)
   - [Report Bugs](#report-bugs)
   - [Fix Bugs](#fix-bugs)
@@ -46,7 +44,7 @@ little bit helps, and credit will always be given.
   - [Integration test development environment](#integration-test-development-environment)
     - [Prerequisites](#prerequisites)
       - [Docker](#docker)
-    - [Getopt and coreutils](#getopt-and-coreutils)
+      - [Getopt and coreutils](#getopt-and-coreutils)
     - [Building the images for the first time](#building-the-images-for-the-first-time)
     - [Force pulling the images](#force-pulling-the-images)
     - [Cleaning up cached Docker images/containers](#cleaning-up-cached-docker-imagescontainers)
@@ -355,7 +353,7 @@ disk space available for Docker on Mac.
 At least 128 GB of Disk space is recommended. You can also get by with smaller space but you should more often
 clean the docker disk space periodically.
 
-### Getopt and coreutils
+#### Getopt and coreutils
 
 **If you are on MacOS:**
 
@@ -366,7 +364,6 @@ echo 'export PATH=\"/usr/local/opt/gnu-getopt/bin:\$PATH\"' >> ~/.bash_profile"
 . ~/.bash_profile"
 ```
 * Login and logout afterwards
-
 
 **If you are on Linux:**
 
