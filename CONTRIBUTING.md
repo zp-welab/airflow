@@ -22,21 +22,57 @@ under the License.
 Contributions are welcome and are greatly appreciated! Every
 little bit helps, and credit will always be given.
 
-# Table of Contents
-  * [Types of Contributions](#types-of-contributions)
-      - [Report Bugs](#report-bugs)
-      - [Fix Bugs](#fix-bugs)
-      - [Implement Features](#implement-features)
-      - [Improve Documentation](#improve-documentation)
-      - [Submit Feedback](#submit-feedback)
-  * [Documentation](#documentation)
-  * [Setting up a development environment](#setting-up-a-development-environment)
-      - [Local virtualenv development environment](#local-virtualenv-development-environment)
-      - [Docker container development environment](#docker-container-development-environment)
-      - [Integration test development environment](#integration-test-development-environment)
-  * [Running static code analysis locally](#running-static-code-analysis-locally)
-  * [Pull requests guidelines](#pull-request-guidelines)
-  * [Changing the Metadata Database](#changing-the-metadata-database)
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Contributing](#contributing)
+- [Table of Contents](#table-of-contents)
+- [Types of Contributions](#types-of-contributions)
+  - [Report Bugs](#report-bugs)
+  - [Fix Bugs](#fix-bugs)
+  - [Implement Features](#implement-features)
+  - [Improve Documentation](#improve-documentation)
+  - [Submit Feedback](#submit-feedback)
+- [Documentation](#documentation)
+- [Setting up a development environment](#setting-up-a-development-environment)
+  - [Local virtualenv development environment](#local-virtualenv-development-environment)
+    - [Installation](#installation)
+    - [Running tests](#running-tests)
+    - [Running tests directly from the IDE](#running-tests-directly-from-the-ide)
+  - [Docker container development environment](#docker-container-development-environment)
+    - [Installation](#installation-1)
+    - [Running tests](#running-tests-1)
+  - [Integration test development environment](#integration-test-development-environment)
+    - [Prerequisites](#prerequisites)
+      - [Docker](#docker)
+    - [Getopt and coreutils](#getopt-and-coreutils)
+    - [Building the images for the first time](#building-the-images-for-the-first-time)
+    - [Force pulling the images](#force-pulling-the-images)
+    - [Cleaning up cached Docker images/containers](#cleaning-up-cached-docker-imagescontainers)
+    - [Troubleshooting](#troubleshooting)
+    - [Using the environment](#using-the-environment)
+      - [Running the whole suite of tests](#running-the-whole-suite-of-tests)
+      - [Entering bash environment](#entering-bash-environment)
+      - [Stopping the environment](#stopping-the-environment)
+    - [Running static code analysis locally](#running-static-code-analysis-locally)
+    - [Pylint checks (work in-progress)](#pylint-checks-work-in-progress)
+    - [Git hooks](#git-hooks)
+  - [Pull Request Guidelines](#pull-request-guidelines)
+    - [Testing on Travis CI](#testing-on-travis-ci)
+      - [Travis CI GitHub App (new version)](#travis-ci-github-app-new-version)
+      - [Travis CI GitHub Services (legacy version)](#travis-ci-github-services-legacy-version)
+      - [Prefer travis-ci.com over travis-ci.org](#prefer-travis-cicom-over-travis-ciorg)
+    - [Changing the Metadata Database](#changing-the-metadata-database)
+  - [Setting up the node / npm javascript environment](#setting-up-the-node--npm-javascript-environment)
+    - [Node/npm versions](#nodenpm-versions)
+    - [Using npm to generate bundled files](#using-npm-to-generate-bundled-files)
+      - [npm](#npm)
+      - [npm packages](#npm-packages)
+      - [Upgrading npm packages](#upgrading-npm-packages)
+      - [Javascript Style Guide](#javascript-style-guide)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Types of Contributions
 
@@ -301,23 +337,96 @@ Travis environment and you can enter the environment and run it locally.
 The scripts used by Travis CI run also image builds which make the images contain all the sources. You can
 see which scripts are used in [.travis.yml](.travis.yml) file.
 
-You can use the same scripts after building the local CI images (using
-[scripts/ci/local_ci_build.sh](scripts/ci/local_ci_build.sh). Note that building image first time pulls
-the cached version of image from Dockerhub based on master sources and rebuilds the layers that need
-to be rebuilt - because they changed in local sources. This might take a bit of time when you run it for
-the first time and when you add new dependencies - but rebuilding the image should be an operation done
-quite rarely. Once you performed the first build, the images are rebuilt locally rather than pulled.
+### Prerequisites
 
-You can also force-pull the images before building it locally so that you are sure that you download
+#### Docker
+You need to have [Docker CE](https://docs.docker.com/get-started/) installed.
+
+**IMPORTANT!!!** : Mac OS Docker default Disk size settings
+
+When you develop on Mac OS you usually have not enough disk space for Docker if you start using it seriously.
+You should increase disk space available before starting to work with the environment. Usually you have weird
+stops of docker containers when you run out of Disk space. It might not be obvious that space is an issue.
+If you get into weird behaviour try [Cleaning Up Docker](#cleaning-up-cached-docker-imagescontainers)
+
+See [Docker for Mac - Space](https://docs.docker.com/docker-for-mac/space/) for details of increasing
+disk space available for Docker on Mac.
+
+At least 128 GB of Disk space is recommended. You can also get by with smaller space but you should more often
+clean the docker disk space periodically.
+
+### Getopt and coreutils
+
+**If you are on MacOS:**
+
+* Run `brew install gnu-getopt coreutils` (if you use brew, or use equivalent command for ports)
+* Then (with brew) link the gnu-getopt to become default as suggested by brew by typing.
+```bash
+echo 'export PATH=\"/usr/local/opt/gnu-getopt/bin:\$PATH\"' >> ~/.bash_profile"
+. ~/.bash_profile"
+```
+* Login and logout afterwards
+
+
+**If you are on Linux:**
+
+* Run `apt install util-linux coreutils` or equivalent if your system is not Debian-based.
+
+### Building the images for the first time
+
+You can start using the environment only after building the local CI images (using
+[scripts/ci/local_ci_build.sh](scripts/ci/local_ci_build.sh). 
+
+Note that building image first time pulls the pre-built version of image from Dockerhub based on master 
+sources and rebuilds the layers that need to be rebuilt - because they changed in local sources. 
+This might take a bit of time when you run it for the first time and when you add new dependencies - 
+but rebuilding the image should be an operation done quite rarely (mostly when you start seeing some
+unknown problems and want to refresh the environment).
+ 
+Once you performed the first build, the images are rebuilt locally rather than pulled unless you 
+force pull the images.
+
+### Force pulling the images
+
+You can force-pull the images before building it locally so that you are sure that you download
 latest images from DockerHub repository before building. This can be done with
 [scripts/ci/local_ci_pull_and_build.sh](scripts/ci/local_ci_pull_and_build.sh) script.
 
-For your convenience, there are also scripts that might be useful for local development
+### Cleaning up cached Docker images/containers
+
+Note that you might need to cleanup your Docker environment from time to time. The images are quite big
+(1.5GB for both images needed for static code analysis and CI tests). And if you often rebuild/update
+images you might end up with some unused image data.
+
+Cleanup can be performed with `docker system prune` command. In case you have huge problems with disk space
+and want to clean-up all image data you can run `docker system prune --all`
+
+If on Mac OS you nd up with not enough disk space for Docker you should increase disk space
+available for Docker. See [Docker for Mac - Space](https://docs.docker.com/docker-for-mac/space/) for details.
+
+Alternatively, you can also set up [Travis CI](https://travis-ci.org/) on your repo to automate this.
+It is free for open source projects.
+
+### Troubleshooting
+
+In case you have problems with the environment try the following:
+
+1. [Stop the environment](#stopping-the-environment)
+2. [Force pull the images](#force-pulling-the-images)
+3. [Clean Up Docker engine](#cleaning-up-cached-docker-imagescontainers)
+4. Remove Docker CE, re-install Docker CE, run [scripts/ci/local_ci_build.sh](scripts/ci/local_ci_build.sh)
+
+You can also copy&paste the output from your terminal, describe the problem and add it as snippet in
+(Airflow Slack)[https://apache-airflow-slack.herokuapp.com/] #troubleshooting channel
+
+### Using the environment
+
+For your convenience, there are scripts that can be used in local development
 - where local host sources are mounted to within the docker container.
 Those "local" scripts starts with "local_" prefix in [scripts/ci](scripts/ci) folder and
 they run Docker-Compose environment with relevant backends (mysql/postgres) and additional services started.
 
-*Running the whole suite of tests:*
+#### Running the whole suite of tests
 
 ```bash
 PYTHON_VERSION=3.6 BACKEND=postgres ENV=docker ./scripts/ci/local_ci_run_airflow_testing.sh
@@ -332,7 +441,7 @@ The kubernetes env might not work locally as easily as other tests because it re
 to be setup properly. We are working on making the kubernetes tests more easily reproducible locally in
 the future.
 
-*Entering bash environment:*
+#### Entering bash environment
 
 ```bash
 PYTHON_VERSION=3.6 BACKEND=postgres ENV=docker ./scripts/ci/local_ci_enter_environment.sh
@@ -340,25 +449,11 @@ PYTHON_VERSION=3.6 BACKEND=postgres ENV=docker ./scripts/ci/local_ci_enter_envir
 
 Once you are inside the environment you can run tests as described in [Running tests](#running-tests)
 
-*Stopping the environment*
+#### Stopping the environment
 
-Docker-compose environment starts a number of docker containers. You can tear them down by running
+Docker-compose environment starts a number of docker containers and keep them running.
+You can tear them down by running 
 [/scripts/ci/local_ci_stop_environment.sh](scripts/ci/local_ci_stop_environment.sh)
-
-*Cleaning up cached Docker images/containers*
-
-Note that you might need to cleanup your Docker environment from time to time. The images are quite big
-(1.5GB for both images needed for static code analysis and CI tests). And if you often rebuild/update
-images you might end up with some unused image data.
-
-Cleanup can be performed with `docker system prune` command. In case you have huge problems with disk space
-and want to clean-up all image data you can run `docker system prune --all`
-
-If on Mac OS you nd up with not enough disk space for docke you should increase disk space
-available for Docker. See [Docker for Mac - Space](https://docs.docker.com/docker-for-mac/space/) for details.
-
-Alternatively, you can also set up [Travis CI](https://travis-ci.org/) on your repo to automate this.
-It is free for open source projects.
 
 ### Running static code analysis locally
 
