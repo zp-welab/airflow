@@ -18,6 +18,9 @@
 #
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# shellcheck source=./_check_not_in_container.sh
+. "${MY_DIR}/_check_not_in_container.sh"
+
 acquire_rat_jar () {
 
   URL="http://repo1.maven.org/maven2/org/apache/rat/apache-rat/${RAT_VERSION}/apache-rat-${RAT_VERSION}.jar"

@@ -451,6 +451,9 @@ You can tear them down by running
 
 ### Running static code analysis locally
 
+NOTE!!! Those scripts for static code analysis are supposed to be run from the host not inside the container
+They will fail if you try to rune them inside the container with appropriate error message.
+
 We have a number of static code checks that are run in Travis CI but you can run them locally as well.
 All the scripts are available in [scripts/ci](scripts/ci) folder.
 

@@ -21,6 +21,6 @@ if [[ ${APT_DEPS_IMAGE:=""} == "" ]]; then
     echo >&2 "You are not inside the Airflow docker container!"
     echo >&2 "You should only run this script in the Airflow docker container as it may override your files."
     echo >&2 "Learn more about how we develop and test airflow in:"
-    echo >&2 "https://github.com/apache/airflow/blob/master/CONTRIBUTING.md#setting-up-a-development-environment"
+    echo >&2 "https://github.com/apache/airflow/blob/master/CONTRIBUTING.md"
     exit 1
 fi

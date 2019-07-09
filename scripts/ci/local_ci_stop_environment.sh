@@ -20,6 +20,8 @@
 
 set -xeuo pipefail
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# shellcheck source=./_check_not_in_container.sh
+. "${MY_DIR}/_check_not_in_container.sh"
 
 export PYTHON_VERSION=${PYTHON_VERSION:="3.6"}
 export DOCKERHUB_USER=${DOCKERHUB_USER:="apache"}

@@ -20,6 +20,8 @@
 
 set -xeuo pipefail
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# shellcheck source=./_check_not_in_container.sh
+. "${MY_DIR}/_check_not_in_container.sh"
 
 export RUN_TESTS="false"
 export MOUNT_LOCAL_SOURCES="true"

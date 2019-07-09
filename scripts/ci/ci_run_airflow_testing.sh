@@ -20,7 +20,8 @@
 
 set -xeuo pipefail
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
+# shellcheck source=./_check_not_in_container.sh
+. "${MY_DIR}/_check_not_in_container.sh"
 
 export PYTHON_VERSION=${PYTHON_VERSION:=$(python -c 'import sys; print("%s.%s" % (sys.version_info.major, sys.version_info.minor))')}
 AIRFLOW_VERSION=$(cat airflow/version.py - << EOF | python
