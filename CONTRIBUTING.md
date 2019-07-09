@@ -401,9 +401,6 @@ and want to clean-up all image data you can run `docker system prune --all`
 If on Mac OS you nd up with not enough disk space for Docker you should increase disk space
 available for Docker. See [Docker for Mac - Space](https://docs.docker.com/docker-for-mac/space/) for details.
 
-Alternatively, you can also set up [Travis CI](https://travis-ci.org/) on your repo to automate this.
-It is free for open source projects.
-
 ### Troubleshooting
 
 In case you have problems with the environment try the following:
@@ -411,7 +408,7 @@ In case you have problems with the environment try the following:
 1. [Stop the environment](#stopping-the-environment)
 2. [Force pull the images](#force-pulling-the-images)
 3. [Clean Up Docker engine](#cleaning-up-cached-docker-imagescontainers)
-4. Remove Docker CE, re-install Docker CE, run [scripts/ci/local_ci_build.sh](scripts/ci/local_ci_build.sh)
+4. Remove and re-install Docker CE,then [force pull the images](#force-pulling-the-images)
 
 You can also copy&paste the output from your terminal, describe the problem and add it as snippet in
 (Airflow Slack)[https://apache-airflow-slack.herokuapp.com/] #troubleshooting channel
