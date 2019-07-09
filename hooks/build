@@ -97,6 +97,17 @@ function build_image {
     echo "Build ${NAME} image: ${MY_IMAGE_TAG}"
     echo "Base image: ${PYTHON_BASE_IMAGE}"
 
+    set +u
+    if [[ "${MY_IMAGE_TAG}" == "${AIRFLOW_CI_IMAGE}" ]]; then
+        DOCKER_CACHE_DIRECTIVE=("${DOCKER_CACHE_DIRECTIVE_CI[@]}")
+    elif [[ "${MY_IMAGE_TAG}" == "${AIRFLOW_SLIM_CI_IMAGE}" ]]; then
+        DOCKER_CACHE_DIRECTIVE=("${DOCKER_CACHE_DIRECTIVE_CI_SLIM[@]}")
+    else
+        echo
+        echo "Don't know how to set cache directive for ${MY_IMAGE_TAG}. Exiting"
+        echo
+        exit 1
+    fi
     set -x
     docker build \
         --build-arg PYTHON_BASE_IMAGE="${PYTHON_BASE_IMAGE}" \
@@ -114,8 +125,8 @@ function build_image {
         .
 
     add_image_to_push "${MY_IMAGE_TAG}"
-
     set +x
+    set -u
 }
 
 start_step "Setting variables"
@@ -345,7 +356,8 @@ if [[ "${AIRFLOW_CONTAINER_USE_PULLED_IMAGES_CACHE}" == "true" ]]; then
         IMAGES_TO_PULL="${IMAGES_TO_PULL} ${AIRFLOW_SLIM_CI_IMAGE}"
     fi
 
-    DOCKER_CACHE_DIRECTIVE=()
+    DOCKER_CACHE_DIRECTIVE_CI=()
+    DOCKER_CACHE_DIRECTIVE_CI_SLIM=()
     for IMAGE in ${IMAGES_TO_PULL}
     do
         echo
@@ -384,26 +396,45 @@ if [[ "${AIRFLOW_CONTAINER_USE_PULLED_IMAGES_CACHE}" == "true" ]]; then
                 echo
             fi
         fi
-        DOCKER_CACHE_DIRECTIVE+=("--cache-from" "${IMAGE}")
+        if [[ "${IMAGE}" == "${AIRFLOW_CI_IMAGE}" ]]; then
+            DOCKER_CACHE_DIRECTIVE_CI+=("--cache-from" "${IMAGE}")
+        elif [[ "${IMAGE}" == "${AIRFLOW_SLIM_CI_IMAGE}" ]]; then
+            DOCKER_CACHE_DIRECTIVE_CI_SLIM+=("--cache-from" "${IMAGE}")
+        else
+            echo
+            echo "Don't know how to set cache directive for ${IMAGE}. Exiting"
+            echo
+            exit 1
+        fi
     done
 
     echo
     echo "This build uses Docker cache"
-    echo "Cache directive used: ${DOCKER_CACHE_DIRECTIVE[*]}"
+    echo "Cache directives used: "
+    set +u
+    echo "CI build: ${DOCKER_CACHE_DIRECTIVE_CI[*]}"
+    echo "CI slim build: ${DOCKER_CACHE_DIRECTIVE_CI_SLIM[*]}"
+    set -u
     echo
 elif [[ "${AIRFLOW_CONTAINER_USE_NO_CACHE}" == "true" ]]; then
-    DOCKER_CACHE_DIRECTIVE+=("--no-cache")
+    DOCKER_CACHE_DIRECTIVE_CI+=("--no-cache")
+    DOCKER_CACHE_DIRECTIVE_CI_SLIM+=("--no-cache")
     echo
     echo "Skip cache for builds. Everything will be rebuilt from scratch."
     echo
-    echo "Cache directive used: ${DOCKER_CACHE_DIRECTIVE[*]}"
+    echo "Cache directives used: "
+    echo "CI build: ${DOCKER_CACHE_DIRECTIVE_CI[*]}"
+    echo "CI slim build: ${DOCKER_CACHE_DIRECTIVE_CI_SLIM[*]}"
     echo
 else
-    DOCKER_CACHE_DIRECTIVE+=("--cache-from" "${AIRFLOW_CI_IMAGE}" "--cache-from" "${AIRFLOW_SLIM_CI_IMAGE}")
     echo
     echo "Use default cache from locally built images."
     echo
-    echo "Cache directive used: ${DOCKER_CACHE_DIRECTIVE[*]}"
+    echo "Cache directives used: "
+    set +u
+    echo "CI build: ${DOCKER_CACHE_DIRECTIVE_CI[*]}"
+    echo "CI slim build: ${DOCKER_CACHE_DIRECTIVE_CI_SLIM[*]}"
+    set -u
     echo
 fi
 
