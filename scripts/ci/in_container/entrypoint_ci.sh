@@ -54,6 +54,8 @@ ARGS=( "$@" )
 
 RUN_TESTS=${RUN_TESTS:="true"}
 
+CLEAN_FILES=${CLEAN_FILES:="false"}
+
 if [[ ! -d "${AIRFLOW_SOURCES}/airflow/www/node_modules" && "${CLEAN_FILES}" == "false" ]]; then
     echo
     echo "Installing NPM modules as they are not yet installed (Sources mounted from Host)"

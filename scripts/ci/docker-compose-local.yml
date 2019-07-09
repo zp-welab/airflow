@@ -24,6 +24,7 @@ services:
       - ../../dags:/opt/airflow/dags
       - ../../dev:/opt/airflow/dev
       - ../../docs:/opt/airflow/docs
+      - ../../hooks:/opt/airflow/hooks
       - ../../scripts:/opt/airflow/scripts
       - ../../tests:/opt/airflow/tests
       - ../../.coveragerc:/opt/airflow/.coveragerc
