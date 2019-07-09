@@ -29,6 +29,12 @@ export WEBSERVER_HOST_PORT=${WEBSERVER_HOST_PORT:="8080"}
 export BRANCH_NAME=${BRANCH_NAME:="master"}
 export DOCKER_IMAGE=${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${BRANCH_NAME}-python${PYTHON_VERSION}-ci
 
+# Default branch name for triggered builds is master
+export AIRFLOW_CONTAINER_BRANCH_NAME=${AIRFLOW_CONTAINER_BRANCH_NAME:="master"}
+
+export AIRFLOW_CONTAINER_DOCKER_IMAGE=\
+${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${AIRFLOW_CONTAINER_BRANCH_NAME}-python${PYTHON_VERSION}-ci
+
 docker-compose \
     -f "${MY_DIR}/docker-compose.yml" \
     -f "${MY_DIR}/docker-compose-kubernetes.yml" \
