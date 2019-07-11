@@ -21,7 +21,7 @@
 # Bash sanity settings (error on exit, complain for undefined vars, error when pipe fails)
 set -euo pipefail
 
-MY_DIR=$(cd "$(dirname "$0")"; pwd)
+MY_DIR=$(cd "$(dirname "$0")" || exit 1; pwd)
 
 if [[ ${AIRFLOW_CI_VERBOSE:="false"} == "true" ]]; then
     set -x

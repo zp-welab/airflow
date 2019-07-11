@@ -33,5 +33,24 @@ echo
 echo "Running in $(pwd)"
 echo
 
-sudo rm -rf "$(pwd)/docs/_build/*"
-sudo "$(pwd)/docs/build.sh"
+echo
+echo "Running mypy with parameters: $*"
+echo
+
+mypy "$@"
+
+RES="$?"
+
+
+popd &>/dev/null || exit 1
+
+if [[ "${RES}" != 0 ]]; then
+    echo >&2
+    echo >&2 "There were some mypy errors. Exiting"
+    echo >&2
+    exit 1
+else
+    echo
+    echo "Mypy check succeeded"
+    echo
+fi

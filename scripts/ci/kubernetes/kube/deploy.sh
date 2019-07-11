@@ -66,7 +66,7 @@ if [[ ! -d "${BUILD_DIRNAME}" ]]; then
   mkdir -p "${BUILD_DIRNAME}"
 fi
 
-rm -f ${BUILD_DIRNAME}/*
+rm -f "${BUILD_DIRNAME}"/*
 
 if [[ "${GIT_SYNC}" == "0" ]]; then
     INIT_DAGS_VOLUME_NAME=airflow-dags

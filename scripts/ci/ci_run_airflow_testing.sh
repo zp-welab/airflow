@@ -18,12 +18,29 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-set -xeuo pipefail
+set -euo pipefail
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 # shellcheck source=./_check_not_in_container.sh
 . "${MY_DIR}/_check_not_in_container.sh"
+# shellcheck source=./_check_coreutils.sh
+. "${MY_DIR}"/_check_coreutils.sh
 
-export PYTHON_VERSION=${PYTHON_VERSION:=$(python -c 'import sys; print("%s.%s" % (sys.version_info.major, sys.version_info.minor))')}
+pushd "${MY_DIR}/../../" &>/dev/null || exit 1
+
+export VERBOSE=${VERBOSE:="true"}
+
+if [[ ${VERBOSE} == "true" ]]; then
+    set -x
+else
+    echo
+    echo "Running the scripts without verbose output"
+    echo "You can increase verbosity by running 'export VERBOSE=true'"
+    echo
+fi
+
+export PYTHON_VERSION=${PYTHON_VERSION:=$(python -c \
+    'import sys; print("%s.%s" % (sys.version_info.major, sys.version_info.minor))')}
 AIRFLOW_VERSION=$(cat airflow/version.py - << EOF | python
 print(version.replace("+",""))
 EOF
@@ -32,11 +49,11 @@ export AIRFLOW_VERSION
 
 export DOCKERHUB_USER=${DOCKERHUB_USER:="apache"}
 export DOCKERHUB_REPO=${DOCKERHUB_REPO:="airflow"}
-export AIRFLOW_CI_VERBOSE="true"
 export BACKEND=${BACKEND:="sqlite"}
 export ENV=${ENV:="docker"}
 export MOUNT_LOCAL_SOURCES=${MOUNT_LOCAL_SOURCES:="false"}
 export WEBSERVER_HOST_PORT=${WEBSERVER_HOST_PORT:="8080"}
+export AIRFLOW_CI_VERBOSE=${VERBOSE}
 
 if [[ ${MOUNT_LOCAL_SOURCES} == "true" ]]; then
     DOCKER_COMPOSE_LOCAL=("-f" "${MY_DIR}/docker-compose-local.yml")
@@ -81,6 +98,7 @@ else
       -f "${MY_DIR}/docker-compose-kubernetes.yml" \
       "${DOCKER_COMPOSE_LOCAL[@]}" \
          run --no-deps airflow-testing /opt/airflow/scripts/ci/in_container/entrypoint_ci.sh;
+  set +x
   "${MY_DIR}/kubernetes/minikube/stop_minikube.sh"
 
   "${MY_DIR}/kubernetes/minikube/stop_minikube.sh" && "${MY_DIR}/kubernetes/setup_kubernetes.sh" && \
@@ -96,3 +114,9 @@ else
   "${MY_DIR}/kubernetes/minikube/stop_minikube.sh"
 fi
 set -u
+
+popd &>/dev/null || exit 1
+
+if [[ ${VERBOSE} == "true" ]]; then
+    set +x
+fi

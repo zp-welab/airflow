@@ -18,14 +18,13 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-set -xeuo pipefail
+set -euo pipefail
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-# shellcheck source=./_check_not_in_container.sh
-. "${MY_DIR}/_check_not_in_container.sh"
 
 export RUN_TESTS="true"
 export MOUNT_LOCAL_SOURCES="true"
 export PYTHON_VERSION=${PYTHON_VERSION:="3.6"}
+export VERBOSE=${VERBOSE:="false"}
 
 # shellcheck source=./ci_run_airflow_testing.sh
 "${MY_DIR}/ci_run_airflow_testing.sh"

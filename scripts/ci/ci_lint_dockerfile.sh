@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -16,15 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-set -xeuo pipefail
+set -euo pipefail
 
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 # shellcheck source=./_check_not_in_container.sh
 . "${MY_DIR}/_check_not_in_container.sh"
 
-pushd "${MY_DIR}/../../" || exit 1
+pushd "${MY_DIR}/../../" &>/dev/null || exit 1
 
+set -x
 docker run -v "$(pwd)/Dockerfile:/root/Dockerfile" -v "$(pwd)/.hadolint.yaml:/root/.hadolint.yaml" \
     -w /root hadolint/hadolint /bin/hadolint Dockerfile
+set +x
 
-popd || exit 1
+popd &>/dev/null || exit 1

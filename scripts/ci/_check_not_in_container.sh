@@ -17,7 +17,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-if [[ ${APT_DEPS_IMAGE:=""} != "" ]]; then
+if [[ -f /.dockerenv ]]; then
     echo >&2 "You are inside the Airflow docker container!"
     echo >&2 "You should only run this script from the host."
     echo >&2 "Learn more about how we develop and test airflow in:"

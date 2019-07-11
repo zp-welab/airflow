@@ -410,20 +410,35 @@ In case you have problems with the environment try the following:
 3. [Clean Up Docker engine](#cleaning-up-cached-docker-imagescontainers)
 4. Remove and re-install Docker CE,then [force pull the images](#force-pulling-the-images)
 
-You can also copy&paste the output from your terminal, describe the problem and add it as snippet in
-(Airflow Slack)[https://apache-airflow-slack.herokuapp.com/] #troubleshooting channel
+In case the problems are not solved, you can set VERBOSE variable to "true" (`export VERBOSE="true"`)
+and rerun failing command, and copy&paste the output from your terminal, describe the problem and 
+post it in [Airflow Slack](https://apache-airflow-slack.herokuapp.com/) #troubleshooting channel.
 
 ### Using the environment
 
 For your convenience, there are scripts that can be used in local development
 - where local host sources are mounted to within the docker container.
 Those "local" scripts starts with "local_" prefix in [scripts/ci](scripts/ci) folder and
-they run Docker-Compose environment with relevant backends (mysql/postgres) and additional services started.
+they run Docker-Compose environment with relevant backends (mysql/postgres)
+and additional services started.
 
 #### Running the whole suite of tests
 
+Default settings (python 3.6, sqlite backend, docker environment):
+
 ```bash
-PYTHON_VERSION=3.6 BACKEND=postgres ENV=docker ./scripts/ci/local_ci_run_airflow_testing.sh
+./scripts/ci/local_ci_run_airflow_testing.sh
+```
+
+Selecting python version, backend, docker environment:
+
+```bash
+PYTHON_VERSION=3.5 BACKEND=postgres ENV=docker ./scripts/ci/local_ci_run_airflow_testing.sh
+```
+
+Running kubernetes tests:
+```bash
+KUBERNETES_VERSION==v1.13.0 BACKEND=postgres ENV=kubernetes ./scripts/ci/local_ci_run_airflow_testing.sh
 ```
 
 * PYTHON_VERSION might be one of 3.5/3.6
@@ -432,13 +447,21 @@ PYTHON_VERSION=3.6 BACKEND=postgres ENV=docker ./scripts/ci/local_ci_run_airflow
 * KUBERNETES_VERSION - required for Kubernetes tessts - currently KUBERNETES_VERSION=v1.13.0.
 
 The kubernetes env might not work locally as easily as other tests because it requires your host
-to be setup properly. We are working on making the kubernetes tests more easily reproducible locally in
-the future.
+to be setup properly (specifically it installs minikube cluster locally on your host and depending 
+on your machine setting it might or might not work out of the box.
+We are working on making the kubernetes tests more easily reproducible locally in the future.
 
-#### Entering bash environment
+#### Entering bash in the environment
+
+Default environment settings (python 3.6, sqlite backend, docker environment)
+```bash
+ ./scripts/ci/local_ci_enter_environment.sh
+```
+
+Overriding default environment settings:
 
 ```bash
-PYTHON_VERSION=3.6 BACKEND=postgres ENV=docker ./scripts/ci/local_ci_enter_environment.sh
+PYTHON_VERSION=3.5 BACKEND=postgres ENV=docker ./scripts/ci/local_ci_enter_environment.sh
 ```
 
 Once you are inside the environment you can run tests as described in [Running tests](#running-tests)
@@ -475,6 +498,40 @@ they should give the same results as the tests run in TravisCI without special e
 * [ci_mypy.sh](scripts/ci/ci_mypy.sh) - runs mypy type annotation consistency check
 * [ci_pylint.sh](scripts/ci/ci_pylint.sh) - runs pylint static code checker
 * [ci_lint_dockerfile.sh](scripts/ci/ci_lint_dockerfile.sh) - runs lint checker for the Dockerfile
+
+Those scripts ar optimised for time of rebuilds odf docker image. The image will be automatically
+rebuilt when needed (for example when dependencies change). You can also force rebuilding of the
+image by deleting [.build](./build) directory which keeps cached information about the images
+built.
+
+
+If you are already in the [Docker Compose Environment](#entering-bash-in-the-environment) you can also 
+run the same static checks from within container:
+
+* Mypy: `./scripts/ci/in_container/run_mypy.sh airflow tests`
+* Pylint: `./scripts/ci/in_container/run_pylint.sh`
+* Flake8: `./scripts/ci/in_container/run_flake8.sh`
+
+In all scripts you can also pass module/file path as parameters of the scripts to only check selected module
+or file. For example:
+
+In container:
+
+`./scripts/ci/in_container/run_pylint.sh ./airflow/example_dags/`
+
+or
+
+`./scripts/ci/in_container/run_pylint.sh ./airflow/example_dags/test_utils.py`
+
+In host:
+
+`./scripts/ci/ci_pylint.sh ./airflow/example_dags/`
+
+or
+
+`./scripts/ci/ci_pylint.sh./airflow/example_dags/test_utils.py`
+
+
 
 ### Pylint checks (work in-progress)
 

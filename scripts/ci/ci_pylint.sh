@@ -19,22 +19,40 @@
 set -euo pipefail
 
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 # shellcheck source=./_check_not_in_container.sh
 . "${MY_DIR}/_check_not_in_container.sh"
+# shellcheck source=./_force_python_3.6.sh
+. "${MY_DIR}"/_force_python_3.6.sh
+# shellcheck source=./_check_coreutils.sh
+. "${MY_DIR}"/_check_coreutils.sh
+# shellcheck source=./_cache_utils.sh
+. "${MY_DIR}"/_cache_utils.sh
+# shellcheck source=./_verbosity_utils.sh
+. "${MY_DIR}"/_verbosity_utils.sh
 
-pushd "${MY_DIR}/../../" || exit 1
+output_verbose_start
 
-export AIRFLOW_CONTAINER_SKIP_SLIM_CI_IMAGE="false"
-export AIRFLOW_CONTAINER_SKIP_CI_IMAGE="true"
-export AIRFLOW_CONTAINER_PUSH_IMAGES="false"
-export AIRFLOW_CONTAINER_BUILD_NPM="false"
-export AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD="true"
+pushd "${MY_DIR}/../../" &>/dev/null || exit 1
 
-# shellcheck source=../../hooks/build
-. ./hooks/build
+# shellcheck source=./_rebuild_image_if_needed_for_static_checks.sh
+. "${MY_DIR}/_rebuild_image_if_needed_for_static_checks.sh"
 
-set -x
-docker run --entrypoint /opt/airflow/scripts/ci/in_container/run_pylint.sh "${AIRFLOW_SLIM_CI_IMAGE}"
-set +x
+# shellcheck source=./_mounted_volumes_for_static_checks.sh
+. "${MY_DIR}"/_mounted_volumes_for_static_checks.sh
 
-popd || exit 1
+FILES=("$@")
+if [[ "${#FILES[@]}" == "0" ]]; then
+    docker run "${AIRFLOW_CONTAINER_EXTRA_DOCKER_FLAGS[@]}" \
+        --entrypoint /opt/airflow/scripts/ci/in_container/run_pylint.sh \
+        "${AIRFLOW_SLIM_CI_IMAGE}" | tee -a "${OUTPUT_LOG}"
+else
+    docker run "${AIRFLOW_CONTAINER_EXTRA_DOCKER_FLAGS[@]}" \
+        --entrypoint /opt/airflow/scripts/ci/in_container/run_pylint.sh \
+        "${AIRFLOW_SLIM_CI_IMAGE}" \
+        "${FILES[@]}" | tee -a "${OUTPUT_LOG}"
+fi
+
+popd &>/dev/null || exit 1
+
+output_verbose_end

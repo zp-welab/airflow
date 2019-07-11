@@ -33,5 +33,30 @@ echo
 echo "Running in $(pwd)"
 echo
 
-sudo rm -rf "$(pwd)/docs/_build/*"
-sudo "$(pwd)/docs/build.sh"
+if [[ ${#@} == "0" ]]; then
+    echo
+    echo "Running flake with no parameters"
+    echo
+else
+    echo
+    echo "Running flake with parameters: $*"
+    echo
+fi
+
+flake8 "$@"
+
+RES="$?"
+
+
+popd &>/dev/null || exit 1
+
+if [[ "${RES}" != 0 ]]; then
+    echo >&2
+    echo >&2 "There were some flake8 errors. Exiting"
+    echo >&2
+    exit 1
+else
+    echo
+    echo "Flake8 check succeeded"
+    echo
+fi

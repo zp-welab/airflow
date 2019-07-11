@@ -35,6 +35,9 @@ echo
 echo "Airflow root directory: ${AIRFLOW_ROOT}"
 echo
 
+BUILD_CACHE_DIR="${AIRFLOW_ROOT}/.build"
+mkdir -pv "${BUILD_CACHE_DIR}"
+
 date
 
 BUILD_START_TIME=$(date +%s)
@@ -84,6 +87,12 @@ function add_image_to_push {
     echo "List of tags to push now: '${IMAGES_BUILT}'"
     echo
 }
+
+function save_to_file {
+    # shellcheck disable=SC2005
+    echo "$(eval echo "\$$1")" > "${BUILD_CACHE_DIR}/.$1"
+}
+
 
 function build_image {
     NAME="${1}"
@@ -272,10 +281,10 @@ export AIRFLOW_FIX_PERMISSIONS=${AIRFLOW_FIX_PERMISSIONS:="all"}
 echo "Fixing permissions: ${AIRFLOW_FIX_PERMISSIONS}"
 
 export AIRFLOW_CONTAINER_BUILD_NPM=${AIRFLOW_CONTAINER_BUILD_NPM:="true"}
-echo "Building NPM? : ${AIRFLOW_CONTAINER_BUILD_NPM}"
+echo "Building NPM: ${AIRFLOW_CONTAINER_BUILD_NPM}"
 
 export AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD=${AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD:="true"}
-echo "The build optimised for CI? : ${AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD}"
+echo "The build optimised for CI: ${AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD}"
 
 # Base python image for the build
 export PYTHON_BASE_IMAGE=python:${PYTHON_VERSION}-slim
@@ -520,6 +529,7 @@ else
                 "${AIRFLOW_SLIM_CI_IMAGE}" \
                 "main" \
                 "airflow-apt-deps-ci-slim"
+    save_to_file AIRFLOW_SLIM_CI_IMAGE
     if [[ "${PYTHON_VERSION_FOR_DEFAULT_IMAGE}" == "${PYTHON_VERSION}" ]]; then
         docker tag "${AIRFLOW_SLIM_CI_IMAGE}" "${AIRFLOW_SLIM_CI_IMAGE_DEFAULT}"
         add_image_to_push "${AIRFLOW_SLIM_CI_IMAGE_DEFAULT}"
@@ -545,6 +555,7 @@ else
                 "devel_ci" \
                 "root" \
                 "/root"
+    save_to_file AIRFLOW_CI_IMAGE
 
     if [[ "${PYTHON_VERSION_FOR_DEFAULT_IMAGE}" == "${PYTHON_VERSION}" ]]; then
         docker tag "${AIRFLOW_CI_IMAGE}" "${AIRFLOW_CI_IMAGE_DEFAULT}"

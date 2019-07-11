@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+set -uo pipefail
 
 # shellcheck source=./_check_not_in_container.sh
 . "${MY_DIR}/_check_not_in_container.sh"
@@ -79,12 +80,13 @@ mkdir -p docs/_build/html/
 
 echo "Running license checks. This can take a while."
 
-
+set -x
 if ! ${JAVA_CMD} -jar "${RAT_JAR}" -E "${AIRFLOW_ROOT}"/.rat-excludes \
     -d "${AIRFLOW_ROOT}" > rat-results.txt; then
    echo >&2 "RAT exited abnormally"
    exit 1
 fi
+set +x
 
 ERRORS="$(grep -e "??" rat-results.txt)"
 

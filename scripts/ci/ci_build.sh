@@ -33,19 +33,12 @@ MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 output_verbose_start
 
-pushd "${MY_DIR}"/../../ &>/dev/null || exit 1
-
-# shellcheck source=./_rebuild_image_if_needed_for_static_checks.sh
-. "${MY_DIR}/_rebuild_image_if_needed_for_static_checks.sh"
-
 # shellcheck source=./_mounted_volumes_for_static_checks.sh
 . "${MY_DIR}"/_mounted_volumes_for_static_checks.sh
 
-set -x
-docker run "${AIRFLOW_CONTAINER_EXTRA_DOCKER_FLAGS[@]}" -t --entrypoint /opt/airflow/docs/build.sh \
-       --env HOST_USER_ID="$(id -ur)" --env HOST_GROUP_ID="$(id -gr)" "${AIRFLOW_SLIM_CI_IMAGE}" \
-
-set +x
+pushd "${MY_DIR}/../../" &>/dev/null || exit 1
+# shellcheck source=./_rebuild_image_if_needed_for_static_checks.sh
+. "${MY_DIR}/_rebuild_image_if_needed_for_static_checks.sh"
 
 popd &>/dev/null || exit 1
 

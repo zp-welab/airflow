@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-
-#
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -20,6 +18,7 @@
 
 set -xeuo pipefail
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 # shellcheck source=./_check_not_in_container.sh
 . "${MY_DIR}/_check_not_in_container.sh"
 

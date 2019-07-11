@@ -22,44 +22,65 @@
 
 set -uo pipefail
 
-# Uncomment to see the commands executed
-# set -x
+MY_DIR=$(cd "$(dirname "$0")" || exit 1; pwd)
 
-pushd "${AIRFLOW_SOURCES}" || exit 1
+# shellcheck source=./_check_in_container.sh
+. "${MY_DIR}/_check_in_container.sh"
+
+pushd "${AIRFLOW_SOURCES}"  &>/dev/null || exit 1
 
 echo
 echo "Running in $(pwd)"
 echo
 
-echo
-echo "Running pylint for source code without tests"
-echo
+if [[ ${#@} == "0" ]]; then
+    echo
+    echo "Running Pylint with no parameters"
+    echo
 
-find . -name "*.py" \
--not -path "./.eggs/*" \
--not -path "./airflow/www/node_modules/*" \
--not -path "./airflow/_vendor/*" \
--not -path "./build/*" \
--not -path "./tests/*" \
--not -name 'webserver_config.py' | grep -vFf scripts/ci/pylint_todo.txt | xargs pylint --output-format=colorized
-RES_MAIN=$?
+    echo
+    echo "Running pylint for source code without tests"
+    echo
 
-echo
-echo "Running pylint for tests"
-echo
+    # Using path -prune is much better in the local environment on OSX because we have host
+    # Files mounted and node_modules is a huge directory which takes many seconds to even scan
+    # -prune works better than -not path because it skips traversing the whole directory. -not path traverses
+    # the directory and only excludes it after all of it is scanned
+    find . \
+    -path "./airflow/www/node_modules" -prune -o \
+    -path "./airflow/_vendor" -prune -o \
+    -path "./.eggs" -prune -o \
+    -path "./docs/_build" -prune -o \
+    -path "./build" -prune -o \
+    -path "./tests" -prune -o \
+    -name "*.py" \
+    -not -name 'webserver_config.py' | \
+        grep  ".*.py$" | \
+        grep -vFf scripts/ci/pylint_todo.txt | xargs pylint --output-format=colorized
+    RES_MAIN=$?
 
-find . -name "*.py" -path './tests/*' | \
-grep -vFf scripts/ci/pylint_todo.txt | \
-xargs pylint --disable="
-    missing-docstring,
-    no-self-use,
-    too-many-public-methods,
-    protected-access
-    " \
-    --output-format=colorized
-RES_TESTS=$?
+    echo
+    echo "Running pylint for tests"
+    echo
+    find "./tests" -name "*.py" | \
+    grep -vFf scripts/ci/pylint_todo.txt | \
+    xargs pylint --disable="
+        missing-docstring,
+        no-self-use,
+        too-many-public-methods,
+        protected-access
+        " \
+        --output-format=colorized
+    RES_TESTS=$?
+else
+    echo "Running Pylint with parameters: $*"
+    echo
+    pylint --output-format=colorized "$@"
+    RES_MAIN=$?
+    RES_TESTS="0"
+fi
 
-popd || exit 1
+popd &>/dev/null || exit 1
 
 if [[ "${RES_TESTS}" != 0 || "${RES_MAIN}" != 0 ]]; then
     echo >&2

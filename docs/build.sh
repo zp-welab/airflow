@@ -21,9 +21,9 @@
 set -euo pipefail
 
 MY_DIR="$(cd "$(dirname "$0")" && pwd)"
-pushd "${MY_DIR}" || exit 1
+pushd "${MY_DIR}" &>/dev/null || exit 1
 
-if [[ ${APT_DEPS_IMAGE:=""} != "" ]]; then
+if [[ -f /.dockerenv ]]; then
     # We are inside the container which means that we should fix permissions of the _build folder files
     # Those files are mounted from the host!
     echo "Changing ownership of docs/_build folder to ${AIRFLOW_USER}:${AIRFLOW_USER}"
@@ -88,4 +88,4 @@ if echo ${SUCCEED_LINE} | grep -q "warning"; then
     exit 1
 fi
 
-popd || exit 1
+popd &>/dev/null || exit 1

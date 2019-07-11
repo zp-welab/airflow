@@ -19,7 +19,7 @@
 
 # Bash sanity settings (error on exit, complain for undefined vars, error when pipe fails)
 set -euo pipefail
-MY_DIR=$(cd "$(dirname "$0")"; pwd)
+MY_DIR=$(cd "$(dirname "$0")" || exit 1; pwd)
 
 if [[ ${AIRFLOW_CI_VERBOSE:="false"} == "true" ]]; then
     set -x
@@ -60,13 +60,13 @@ if [[ ! -d "${AIRFLOW_SOURCES}/airflow/www/node_modules" && "${CLEAN_FILES}" == 
     echo
     echo "Installing NPM modules as they are not yet installed (Sources mounted from Host)"
     echo
-    pushd "${AIRFLOW_SOURCES}/airflow/www/"
+    pushd "${AIRFLOW_SOURCES}/airflow/www/" &>/dev/null || exit 1
     npm ci
     echo
-    popd
+    popd &>/dev/null || exit 1
 fi
 if [[ ! -d "${AIRFLOW_SOURCES}/airflow/www/static/dist" && ${CLEAN_FILES} == "false" ]]; then
-    pushd "${AIRFLOW_SOURCES}/airflow/www/"
+    pushd "${AIRFLOW_SOURCES}/airflow/www/" &>/dev/null || exit 1
     echo
     echo "Building production version of javascript files (Sources mounted from Host)"
     echo
@@ -74,7 +74,7 @@ if [[ ! -d "${AIRFLOW_SOURCES}/airflow/www/static/dist" && ${CLEAN_FILES} == "fa
     npm run prod
     echo
     echo
-    popd
+    popd &>/dev/null || exit 1
 fi
 
 if [[ ${AIRFLOW_CI_VERBOSE} == "true" ]]; then
@@ -104,17 +104,17 @@ if [[ -d "${HOME}/.minikube" ]]; then
 fi
 
 # Cleanup the logs when entering the environment
-sudo rm -rf ${AIRFLOW_HOME}/logs/*
-mkdir -pv ${AIRFLOW_HOME}/logs/
+sudo rm -rf "${AIRFLOW_HOME}"/logs/*
+mkdir -pv "${AIRFLOW_HOME}"/logs/
 
 if [[ "${ENV}" == "docker" ]]; then
     # Start MiniCluster
     java -cp "/tmp/minicluster-1.1-SNAPSHOT/*" com.ing.minicluster.MiniCluster \
-        >${AIRFLOW_HOME}/logs/minicluster.log 2>&1 &
+        >"${AIRFLOW_HOME}"/logs/minicluster.log 2>&1 &
 
     # Set up ssh keys
     echo 'yes' | ssh-keygen -t rsa -C your_email@youremail.com -P '' -f ~/.ssh/id_rsa \
-        >${AIRFLOW_HOME}/logs/ssh-keygen.log 2>&1
+        >"${AIRFLOW_HOME}"/logs/ssh-keygen.log 2>&1
 
     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
     ln -s -f ~/.ssh/authorized_keys ~/.ssh/authorized_keys2
