@@ -321,11 +321,9 @@ COPY --chown=airflow:airflow airflow/__init__.py ${AIRFLOW_SOURCES}/airflow/__in
 COPY --chown=airflow:airflow airflow/bin/airflow ${AIRFLOW_SOURCES}/airflow/bin/airflow
 
 # The goal of this line is to install the dependencies from the most current setup.py from sources
-# This will be usually incremental small set of packages so it will be very fast
-RUN \
-    if [[ "${AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD}" == "true" ]]; then \
-        pip install --no-use-pep517 -e ".[${AIRFLOW_EXTRAS}]"; \
-    fi
+# This will be usually incremental small set of packages in CI optimized build, so it will be very fast
+# In non-CI optimized build this will install all dependencies before installing sources.
+RUN pip install --no-use-pep517 -e ".[${AIRFLOW_EXTRAS}]"
 
 COPY --chown=airflow:airflow airflow/www/package.json ${AIRFLOW_SOURCES}/airflow/www/package.json
 COPY --chown=airflow:airflow airflow/www/package-lock.json ${AIRFLOW_SOURCES}/airflow/www/package-lock.json
