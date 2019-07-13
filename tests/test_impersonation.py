@@ -41,8 +41,16 @@ logger = logging.getLogger(__name__)
 class ImpersonationTest(unittest.TestCase):
 
     @staticmethod
-    def get_script(script_name):
-        return os.path.join(os.environ['AIRFLOW_SOURCES'], "scripts", "ci", "in_container", script_name)
+    def grant_permissions():
+        airflow_home = os.environ['AIRFLOW_HOME']
+        subprocess.check_call(
+            'find "%s" -exec sudo chmod og+w {} +; sudo chmod og+rx /root' % airflow_home, shell=True)
+
+    @staticmethod
+    def revoke_permissions():
+        airflow_home = os.environ['AIRFLOW_HOME']
+        subprocess.check_call(
+            'find "%s" -exec sudo chmod og-w {} +; sudo chmod og-rx /root' % airflow_home, shell=True)
 
     def setUp(self):
         if not os.path.isfile('/.dockerenv') or os.environ.get('APT_DEPS_IMAGE') is None:
@@ -51,7 +59,7 @@ class ImpersonationTest(unittest.TestCase):
 the official docker container and only allow to run the test there. This is done by checking /.dockerenv
 file (always present inside container) and checking for APT_DEPS_IMAGE variable.
 """)
-        subprocess.check_call(self.get_script('grant_impersonation_permissions.sh'), shell=True)
+        self.grant_permissions()
         add_default_pool_if_not_exists()
         self.dagbag = models.DagBag(
             dag_folder=TEST_DAG_FOLDER,
@@ -79,7 +87,7 @@ file (always present inside container) and checking for APT_DEPS_IMAGE variable.
 
     def tearDown(self):
         subprocess.check_output(['sudo', 'userdel', '-r', TEST_USER])
-        subprocess.check_call(self.get_script('revoke_impersonation_permissions.sh'), shell=True)
+        self.revoke_permissions()
 
     def run_backfill(self, dag_id, task_id):
         dag = self.dagbag.get_dag(dag_id)
