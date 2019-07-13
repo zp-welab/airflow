@@ -287,7 +287,7 @@ export AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD=${AIRFLOW_CONTAINER_CI_OPTIMISED_BUI
 echo "The build optimised for CI: ${AIRFLOW_CONTAINER_CI_OPTIMISED_BUILD}"
 
 # Base python image for the build
-export PYTHON_BASE_IMAGE=python:${PYTHON_VERSION}-slim
+export PYTHON_BASE_IMAGE=python:${PYTHON_VERSION}-slim-stretch
 
 if [[ "${AIRFLOW_RELEASE_BUILD}" == "true" ]]; then
     export AIRFLOW_SLIM_CI_IMAGE="${DOCKERHUB_USER}/${DOCKERHUB_REPO}:${AIRFLOW_VERSION}-python${PYTHON_VERSION}-ci-slim"
