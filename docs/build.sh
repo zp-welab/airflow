@@ -27,7 +27,8 @@ if [[ -f /.dockerenv ]]; then
     # We are inside the container which means that we should fix permissions of the _build folder files
     # Those files are mounted from the host!
     echo "Changing ownership of docs/_build folder to ${AIRFLOW_USER}:${AIRFLOW_USER}"
-    sudo chown ${AIRFLOW_USER}:${AIRFLOW_USER} _build
+    sudo mkdir -pv _build
+    sudo chown -R ${AIRFLOW_USER}:${AIRFLOW_USER} _build
     echo "Changed ownership of docs/_build folder to ${AIRFLOW_USER}:${AIRFLOW_USER}"
 fi
 
@@ -36,7 +37,6 @@ rm -rf _build/*
 echo "Removed content of the _build folder"
 
 mkdir -pv _build
-
 
 set +e
 # shellcheck disable=SC2063
