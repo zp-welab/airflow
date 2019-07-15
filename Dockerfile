@@ -332,6 +332,7 @@ WORKDIR ${AIRFLOW_SOURCES}
 # we redo pip install
 RUN apt-get update \
     && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y vim \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

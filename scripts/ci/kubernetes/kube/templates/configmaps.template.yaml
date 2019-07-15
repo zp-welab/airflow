@@ -154,14 +154,14 @@ data:
 
     [kubernetes]
     airflow_configmap = airflow-configmap
-    worker_container_repository = airflow
-    worker_container_tag = latest
+    worker_container_repository = {{AIRFLOW_IMAGE}}
+    worker_container_tag = {{AIRFLOW_TAG}}
     worker_container_image_pull_policy = IfNotPresent
     delete_worker_pods = True
     dags_in_image = False
     git_repo = https://github.com/{{CONFIGMAP_GIT_REPO}}.git
     git_branch = {{CONFIGMAP_BRANCH}}
-    git_subpath = airflow/contrib/example_dags/
+    git_subpath = {{CONFIGMAP_GIT_SUBPATH}}
     git_user =
     git_password =
     git_sync_root = /git
