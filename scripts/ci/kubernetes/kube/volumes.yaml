@@ -26,8 +26,9 @@ spec:
     - ReadWriteOnce
   capacity:
     storage: 2Gi
-  hostPath:
-    path: /airflow-dags/
+  gcePersistentDisk:
+    pdName: airflow-disk
+    fsType: ext4
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -49,8 +50,9 @@ spec:
     - ReadWriteMany
   capacity:
     storage: 2Gi
-  hostPath:
-    path: /airflow-logs/
+  nfs:
+    server: nfs-server.default.svc.cluster.local
+    path: "/"
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -59,6 +61,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
+  storageClassName: ""
   resources:
     requests:
       storage: 2Gi
@@ -72,8 +75,9 @@ spec:
     - ReadWriteOnce
   capacity:
     storage: 2Gi
-  hostPath:
-    path: /airflow-dags/
+  gcePersistentDisk:
+    pdName: airflow-disk
+    fsType: ext4
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
