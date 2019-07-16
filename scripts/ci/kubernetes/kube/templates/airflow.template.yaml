@@ -83,6 +83,12 @@ spec:
             secretKeyRef:
               name: airflow-secrets
               key: sql_alchemy_conn
+        readinessProbe:
+            httpGet:
+                path: /health
+                port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
         volumeMounts:
         - name: airflow-configmap
           mountPath: /root/airflow/airflow.cfg
@@ -142,3 +148,12 @@ spec:
       nodePort: 30809
   selector:
     name: airflow
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: airflow-ingress
+spec:
+  backend:
+    serviceName: airflow
+    servicePort: 8080
