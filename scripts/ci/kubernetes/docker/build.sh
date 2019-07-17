@@ -41,6 +41,8 @@ else
 fi
 
 cd $AIRFLOW_ROOT
+rm dist/*.tar.gz
+
 docker run -ti --rm -v ${AIRFLOW_ROOT}:/airflow \
     -w /airflow ${PYTHON_DOCKER_IMAGE} ./scripts/ci/kubernetes/docker/compile.sh
 
