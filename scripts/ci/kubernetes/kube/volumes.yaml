@@ -23,7 +23,7 @@ metadata:
   name: airflow-dags
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadOnlyMany 
   capacity:
     storage: 2Gi
   gcePersistentDisk:
@@ -36,7 +36,7 @@ metadata:
   name: airflow-dags
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadOnlyMany
   resources:
     requests:
       storage: 2Gi
@@ -85,7 +85,7 @@ metadata:
   name: test-volume
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 2Gi
