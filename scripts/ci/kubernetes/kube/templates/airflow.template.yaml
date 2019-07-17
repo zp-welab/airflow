@@ -119,6 +119,22 @@ spec:
           mountPath: /root/airflow/dags
         - name: airflow-logs
           mountPath: /root/airflow/logs
+      - name: git-sync
+        image: k8s.gcr.io/git-sync:v3.1.0
+        env:
+        - name: GIT_SYNC_REPO
+          value: https://github.com/{{CONFIGMAP_GIT_REPO}}.git
+        - name: GIT_SYNC_BRANCH
+          value: {{CONFIGMAP_BRANCH}}
+        - name: GIT_SYNC_ROOT
+          value: /git
+        - name: GIT_SYNC_DEST
+          value: repo
+        - name: GIT_SYNC_WAIT
+          value: "30"
+        volumeMounts:
+        - name: airflow-dags-git
+          mountPath: /git
       volumes:
       - name: airflow-dags
         persistentVolumeClaim:
