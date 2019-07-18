@@ -24,6 +24,7 @@ AIRFLOW_TAG=${TAG:-latest}
 DIRNAME=$(cd "$(dirname "$0")"; pwd)
 TEMPLATE_DIRNAME=${DIRNAME}/templates
 BUILD_DIRNAME=${DIRNAME}/build
+ENV=${ENV:-local}
 
 usage() {
     cat << EOF
@@ -154,7 +155,11 @@ set -e
 kubectl apply -f $DIRNAME/secrets.yaml
 kubectl apply -f $BUILD_DIRNAME/configmaps.yaml
 kubectl apply -f $DIRNAME/postgres.yaml
-kubectl apply -f $DIRNAME/volumes.yaml
+if [[ "${ENV}" ==  "local" ]]; then
+  kubectl apply -f $DIRNAME/local-volumes.yaml
+else
+  kubectl apply -f $DIRNAME/volumes.yaml
+fi
 kubectl apply -f $BUILD_DIRNAME/airflow.yaml
 
 dump_logs() {
