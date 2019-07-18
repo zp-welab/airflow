@@ -24,24 +24,13 @@ AIRFLOW_ROOT="$DIRNAME/../../../.."
 
 set -e
 
-if [ "${VM_DRIVER:-none}" != "none" ]; then
-    ENVCONFIG=$(minikube docker-env)
-    if [ $? -eq 0 ]; then
-      eval $ENVCONFIG
-    fi
-fi
-
 echo "Airflow directory $AIRFLOW_ROOT"
 echo "Airflow Docker directory $DIRNAME"
 
-if [[ ${PYTHON_VERSION} == '3' ]]; then
-  PYTHON_DOCKER_IMAGE=python:3.6-slim
-else
-  PYTHON_DOCKER_IMAGE=python:2.7-slim
-fi
+PYTHON_DOCKER_IMAGE=python:3.6-slim
 
 cd $AIRFLOW_ROOT
-rm dist/*.tar.gz
+rm -f dist/*.tar.gz
 
 docker run -ti --rm -v ${AIRFLOW_ROOT}:/airflow \
     -w /airflow ${PYTHON_DOCKER_IMAGE} ./scripts/ci/kubernetes/docker/compile.sh

@@ -141,11 +141,6 @@ ${SED_COMMAND} -i "s|{{CONFIGMAP_DAGS_VOLUME_CLAIM}}|$CONFIGMAP_DAGS_VOLUME_CLAI
 cat ${BUILD_DIRNAME}/airflow.yaml
 cat ${BUILD_DIRNAME}/configmaps.yaml
 
-# Fix file permissions
-if [[ "${TRAVIS}" == true ]]; then
-  sudo chown -R travis.travis $HOME/.kube $HOME/.minikube
-fi
-
 kubectl delete -f $DIRNAME/postgres.yaml
 kubectl delete -f $BUILD_DIRNAME/airflow.yaml
 kubectl delete -f $DIRNAME/secrets.yaml
@@ -206,30 +201,30 @@ else
 fi
 
 # Wait until Airflow webserver is up
-MINIKUBE_IP=$(minikube ip)
-AIRFLOW_WEBSERVER_IS_READY=0
-CONSECUTIVE_SUCCESS_CALLS=0
-for i in {1..30}
-do
-  HTTP_CODE=$(curl -LI http://${MINIKUBE_IP}:30809/health -o /dev/null -w '%{http_code}\n' -sS) || true
-  if [[ "$HTTP_CODE" == 200 ]]; then
-    let "CONSECUTIVE_SUCCESS_CALLS+=1"
-  else
-    CONSECUTIVE_SUCCESS_CALLS=0
-  fi
-  if [[ "$CONSECUTIVE_SUCCESS_CALLS" == 3 ]]; then
-    AIRFLOW_WEBSERVER_IS_READY=1
-    break
-  fi
-  sleep 10
-done
-
-if [[ "$AIRFLOW_WEBSERVER_IS_READY" == 1 ]]; then
-  echo "Airflow webserver is ready."
-else
-  echo "Airflow webserver is not ready after waiting for a long time. Exiting..."
-  dump_logs
-  exit 1
-fi
+# MINIKUBE_IP=$(minikube ip)
+# AIRFLOW_WEBSERVER_IS_READY=0
+# CONSECUTIVE_SUCCESS_CALLS=0
+# for i in {1..30}
+# do
+#   HTTP_CODE=$(curl -LI http://${MINIKUBE_IP}:30809/health -o /dev/null -w '%{http_code}\n' -sS) || true
+#   if [[ "$HTTP_CODE" == 200 ]]; then
+#     let "CONSECUTIVE_SUCCESS_CALLS+=1"
+#   else
+#     CONSECUTIVE_SUCCESS_CALLS=0
+#   fi
+#   if [[ "$CONSECUTIVE_SUCCESS_CALLS" == 3 ]]; then
+#     AIRFLOW_WEBSERVER_IS_READY=1
+#     break
+#   fi
+#   sleep 10
+# done
+#
+# if [[ "$AIRFLOW_WEBSERVER_IS_READY" == 1 ]]; then
+#   echo "Airflow webserver is ready."
+# else
+#   echo "Airflow webserver is not ready after waiting for a long time. Exiting..."
+#   dump_logs
+#   exit 1
+# fi
 
 dump_logs
